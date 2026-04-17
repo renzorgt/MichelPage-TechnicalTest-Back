@@ -8,5 +8,7 @@ namespace MichelPage_TechnicalTest_Back.Dtos.TaskDtos
         public int Id { get; set; } 
 
         public string Status { get; set; }
+
+        public int UserIdMod { get; set; }
     }
 }

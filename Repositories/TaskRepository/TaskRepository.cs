@@ -38,7 +38,7 @@ namespace MichelPage_TechnicalTest_Back.Repositories.TaskRepository
             }
         }
 
-        public async Task CreateTaskAsync(TaskCreateDto taskDto, int currentLoggedInUserId)
+        public async Task CreateTaskAsync(TaskCreateDto taskDto)
         {
             try
             {
@@ -51,7 +51,7 @@ namespace MichelPage_TechnicalTest_Back.Repositories.TaskRepository
                 parameters.Add("@Titulo", taskDto.Titulo);
                 parameters.Add("@UserId", taskDto.UserId);
                 parameters.Add("@Informacion", taskDto.Informacion);
-                parameters.Add("@UserIdActual", currentLoggedInUserId);
+                parameters.Add("@UserIdActual", taskDto.UserIdCrea);
 
                 using (var connection = _context.CreateConnection())
                 {
@@ -65,7 +65,7 @@ namespace MichelPage_TechnicalTest_Back.Repositories.TaskRepository
             }
         }
 
-        public async Task<bool> UpdateTaskAsync(TaskUpdateDto taskDto, int currentUserId)
+        public async Task<bool> UpdateTaskAsync(TaskUpdateDto taskDto)
         {
 
             string query = @"
@@ -73,7 +73,7 @@ namespace MichelPage_TechnicalTest_Back.Repositories.TaskRepository
             SET Titulo = @Titulo, 
                 Status = @Status, 
                 Informacion = @Informacion, 
-                FechaModificacion = @FechaModificacion,
+                FechaModificacion = getdate(),
                 UserIdMod = @UserIdMod
             WHERE Id = @Id AND Eliminado = 0;
         ";
@@ -88,7 +88,7 @@ namespace MichelPage_TechnicalTest_Back.Repositories.TaskRepository
             parameters.Add("@Informacion", taskDto.Informacion);
 
             parameters.Add("@FechaModificacion", DateTime.UtcNow);
-            parameters.Add("@UserIdMod", currentUserId);
+            parameters.Add("@UserIdMod", taskDto.UserIdMod);
 
             using (var connection = _context.CreateConnection())
             {
@@ -98,7 +98,7 @@ namespace MichelPage_TechnicalTest_Back.Repositories.TaskRepository
             }
         }
 
-             public async Task<bool> UpdateStatusAsync(TaskUpdateStatusDto taskDto, int currentUserId)
+             public async Task<bool> UpdateStatusAsync(TaskUpdateStatusDto taskDto)
         {
 
             string query = @"
@@ -115,7 +115,7 @@ namespace MichelPage_TechnicalTest_Back.Repositories.TaskRepository
 
             parameters.Add("@Id", taskDto.Id);
             parameters.Add("@Status", taskDto.Status);
-            parameters.Add("@UserIdMod", currentUserId);
+            parameters.Add("@UserIdMod", taskDto.UserIdMod);
 
             using (var connection = _context.CreateConnection())
             {
