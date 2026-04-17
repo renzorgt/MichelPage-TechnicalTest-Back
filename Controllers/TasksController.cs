@@ -17,41 +17,48 @@ namespace MichelPage_TechnicalTest_Back.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> CategoryList()
+        public async Task<IActionResult> TaskList()
         {
             var values = await _taskRepository.GetAllTasksAsync();
             return Ok(values);
         }
-        //[HttpGet("{id}")]
-        //public async Task<IActionResult> CategoryByID(int id)
-        //{
-        //    var values = await _categoryRepository.GetByIdAsync(id);
-        //    return Ok(values);
-        //}
+
         [HttpPost]
-        public async Task<IActionResult> CreateCategory(TaskCreateDto taskDto)
+        public async Task<IActionResult> CreateTask(TaskCreateDto taskDto)
         {
             try
             {
-               await _taskRepository.CreateTaskAsync(taskDto, 1);
+                await _taskRepository.CreateTaskAsync(taskDto, 1);
                 return Ok("Successfull");
             }
             catch (Exception ex)
             {
-                // Aquí puedes loguear el error (recomendado usar ILogger)
-                // _logger.LogError(ex, "Error al crear la tarea");
-
+                
                 return StatusCode(500, new
                 {
                     message = "Error interno del servidor",
-                    Error=ex.Message
+                    Error = ex.Message
                 });
             }
         }
         [HttpPut]
-        public async Task<IActionResult> UpdateCategory(TaskUpdateDto taskDto)
+        public async Task<IActionResult> UpdateTask(TaskUpdateDto taskDto)
         {
-            await _taskRepository.UpdateTaskAsync(taskDto,1);
+            await _taskRepository.UpdateTaskAsync(taskDto, 1);
+            return Ok("Successfull");
+        }
+
+        [HttpPut]
+        public async Task<IActionResult> UpdateStatus(TaskUpdateStatusDto taskDto)
+        {
+            await _taskRepository.UpdateStatusAsync(taskDto, 1);
+            return Ok("Successfull");
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteTask(int id)
+        {
+            await _taskRepository.DeleteTaskAsync(id, 1);
             return Ok("Successfull");
         }
     }

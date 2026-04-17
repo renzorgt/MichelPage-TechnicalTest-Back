@@ -13,7 +13,7 @@ namespace MichelPage_TechnicalTest_Back.Repositories.TaskRepository
         }
         public async Task<List<TaskResultDto>> GetAllTasksAsync()
         {
-            
+
             string query = @"
                     SELECT 
                         t.Id, 
@@ -22,11 +22,14 @@ namespace MichelPage_TechnicalTest_Back.Repositories.TaskRepository
                         u.Nombre AS UserName,
                         t.Status, 
                         t.Informacion, 
+                        JSON_VALUE(t.Informacion, '$.prioridad') AS Prioridad,
+                        JSON_VALUE(t.Informacion, '$.fechaEstimada') AS FechaEstimada,
+                        JSON_VALUE(t.Informacion, '$.descripcion') AS Descripcion,
                         t.FechaCreacion, 
                         t.FechaModificacion
                     FROM Tasks t
                     INNER JOIN Users u ON t.UserId = u.Id
-                    WHERE t.Eliminado = 0;";
+                    WHERE t.Eliminado = 0 Order by t.FechaCreacion Desc;";
 
             using (var connection = _context.CreateConnection())
             {
@@ -45,7 +48,6 @@ namespace MichelPage_TechnicalTest_Back.Repositories.TaskRepository
 
                 var parameters = new DynamicParameters();
 
-                // Datos del DTO
                 parameters.Add("@Titulo", taskDto.Titulo);
                 parameters.Add("@UserId", taskDto.UserId);
                 parameters.Add("@Informacion", taskDto.Informacion);
@@ -58,8 +60,6 @@ namespace MichelPage_TechnicalTest_Back.Repositories.TaskRepository
             }
             catch (Exception ex)
             {
-                // Aquí puedes loguear el error (recomendado usar ILogger)
-                // _logger.LogError(ex, "Error al crear la tarea");
 
                 throw new ApplicationException(ex.Message, ex);
             }
@@ -67,8 +67,7 @@ namespace MichelPage_TechnicalTest_Back.Repositories.TaskRepository
 
         public async Task<bool> UpdateTaskAsync(TaskUpdateDto taskDto, int currentUserId)
         {
-            // Solo actualizamos los campos permitidos y la auditoría.
-            // Agregamos "AND Eliminado = 0" para asegurarnos de no modificar una tarea borrada lógicamente.
+
             string query = @"
             UPDATE Tasks 
             SET Titulo = @Titulo, 
@@ -81,28 +80,76 @@ namespace MichelPage_TechnicalTest_Back.Repositories.TaskRepository
 
             var parameters = new DynamicParameters();
 
-            // 1. Identificador de la tarea
             parameters.Add("@Id", taskDto.Id);
 
-            // 2. Datos modificables por el usuario (vienen del DTO)
             parameters.Add("@Titulo", taskDto.Titulo);
             parameters.Add("@Status", taskDto.Status);
 
-            // Aseguramos que envíe un JSON válido o null
             parameters.Add("@Informacion", taskDto.Informacion);
 
-            // 3. Datos de auditoría controlados por el backend
-            parameters.Add("@FechaModificacion", DateTime.UtcNow); // Siempre usa UTC para servidores
+            parameters.Add("@FechaModificacion", DateTime.UtcNow);
             parameters.Add("@UserIdMod", currentUserId);
 
             using (var connection = _context.CreateConnection())
             {
-                // ExecuteAsync devuelve el número de filas afectadas (int)
                 var rowsAffected = await connection.ExecuteAsync(query, parameters);
 
-                // Si rowsAffected es mayor a 0, significa que encontró el ID y lo actualizó
                 return rowsAffected > 0;
             }
         }
-    }
+
+             public async Task<bool> UpdateStatusAsync(TaskUpdateStatusDto taskDto, int currentUserId)
+        {
+
+            string query = @"
+            UPDATE Tasks 
+            SET 
+                Status = @Status,               
+                FechaModificacion = getdate(),
+                UserIdMod = @UserIdMod
+            WHERE Id = @Id AND Eliminado = 0;
+        ";
+
+            var parameters = new DynamicParameters();
+
+
+            parameters.Add("@Id", taskDto.Id);
+            parameters.Add("@Status", taskDto.Status);
+            parameters.Add("@UserIdMod", currentUserId);
+
+            using (var connection = _context.CreateConnection())
+            {
+                var rowsAffected = await connection.ExecuteAsync(query, parameters);
+
+                return rowsAffected > 0;
+            }
+        }
+
+        public async Task<bool> DeleteTaskAsync(int taskId, int currentUserId)
+        {
+
+            string query = @"
+            UPDATE Tasks 
+            SET 
+                Eliminado = 1,               
+                FechaModificacion = getdate(),
+                UserIdMod = @UserIdMod
+            WHERE Id = @Id AND Eliminado = 0;
+        ";
+
+            var parameters = new DynamicParameters();
+
+
+            parameters.Add("@Id", taskId);
+            parameters.Add("@UserIdMod", currentUserId);
+
+            using (var connection = _context.CreateConnection())
+            {
+                var rowsAffected = await connection.ExecuteAsync(query, parameters);
+
+                return rowsAffected > 0;
+            }
+        }
+    } 
+
 }

@@ -1,4 +1,4 @@
-﻿using Dapper;
+using Dapper;
 using MichelPage_TechnicalTest_Back.DapperContext;
 using MichelPage_TechnicalTest_Back.Dtos.UserDtos;
 
@@ -12,6 +12,7 @@ namespace MichelPage_TechnicalTest_Back.Repositories.UserRepository
         {
             _context = context;
         }
+
         public async Task<List<UserResultDto>> GetAllAsync()
         {
             string query = "SELECT * FROM Users";
@@ -21,6 +22,7 @@ namespace MichelPage_TechnicalTest_Back.Repositories.UserRepository
                 return values.ToList();
             }
         }
+
         public async void CreateUser(UserCreateDto userDto)
         {
             string query = @"INSERT INTO Users (Nombre, Email, Contraseña) 
@@ -33,6 +35,23 @@ namespace MichelPage_TechnicalTest_Back.Repositories.UserRepository
             using (var connection = _context.CreateConnection())
             {
                 await connection.ExecuteAsync(query, parameters);
+            }
+        }
+
+        public async Task<UserResultDto?> LoginAsync(UserLogin credentials)
+        {
+            string query = @"SELECT Id, Nombre, Email 
+                             FROM Users 
+                             WHERE Email = @Email AND Contraseña = @Contraseña";
+
+            var parameters = new DynamicParameters();
+            parameters.Add("@Email", credentials.Email);
+            parameters.Add("@Contraseña", credentials.Contraseña);
+
+            using (var connection = _context.CreateConnection())
+            {
+                var user = await connection.QueryFirstOrDefaultAsync<UserResultDto>(query, parameters);
+                return user;
             }
         }
     }

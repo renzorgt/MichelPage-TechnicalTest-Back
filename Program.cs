@@ -12,7 +12,16 @@ builder.Services.AddTransient<Context>();
 builder.Services.AddScoped <IUserRepository, UserRepository>();
 builder.Services.AddScoped<ITaskRepository, TaskRepository>();
 builder.Services.AddEndpointsApiExplorer();
-
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("Allows",
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:4200")
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        });
+});
 builder.Services.AddSwaggerGen(c =>
 {
     c.AddSecurityDefinition("bearerAuth", new OpenApiSecurityScheme
@@ -47,7 +56,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
+app.UseCors("Allows");
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
