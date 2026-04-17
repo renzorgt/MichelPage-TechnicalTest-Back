@@ -19,7 +19,7 @@ Para ejecutar y probar este proyecto necesitarás:
 El proyecto se comunica con SQL Server usando  Dapper . Como parte de la prueba técnica, se adjunta el modelo de base de datos completo.
 
 ### 1. Ejecutar el script SQL
-En la carpeta raíz principal (`d:\Prueba Tecnica User Task\`), encontrarás el archivo **`Script Sql Server.sql`**. Necesitas:
+En la carpeta raíz principal, encontrarás el archivo **`Script Sql Server.sql`**. Necesitas:
 1. Crear una base de datos nueva en tu servidor SQL (por ejemplo: `DbRenzo` o `TaskSystemDB`).
 2. Abrir y ejecutar todo el contenido de **`Script Sql Server.sql`** dentro de la base de datos nueva.
    - *Este script creará las tablas `Users` y `Tasks`, sus llaves foráneas, restricciones para los estados (`Pending`, `InProgress`, `Done`), e insertará algunos datos de prueba iniciales para los logins (`juan@example.com` / `123456`).*
