@@ -1,6 +1,7 @@
-﻿using Dapper;
+using Dapper;
 using MichelPage_TechnicalTest_Back.DapperContext;
 using MichelPage_TechnicalTest_Back.Dtos.TaskDtos;
+using System.Text.Json;
 
 namespace MichelPage_TechnicalTest_Back.Repositories.TaskRepository
 {
@@ -14,26 +15,28 @@ namespace MichelPage_TechnicalTest_Back.Repositories.TaskRepository
         public async Task<List<TaskResultDto>> GetAllTasksAsync()
         {
 
-            string query = @"
-                    SELECT 
-                        t.Id, 
-                        t.Titulo, 
-                        t.UserId, 
-                        u.Nombre AS UserName,
-                        t.Status, 
-                        t.Informacion, 
-                        JSON_VALUE(t.Informacion, '$.prioridad') AS Prioridad,
-                        JSON_VALUE(t.Informacion, '$.fechaEstimada') AS FechaEstimada,
-                        JSON_VALUE(t.Informacion, '$.descripcion') AS Descripcion,
-                        t.FechaCreacion, 
-                        t.FechaModificacion
-                    FROM Tasks t
-                    INNER JOIN Users u ON t.UserId = u.Id
-                    WHERE t.Eliminado = 0 Order by t.FechaCreacion Desc;";
+            string query = @"exec Get_ListAllTask";
 
             using (var connection = _context.CreateConnection())
             {
                 var values = await connection.QueryAsync<TaskResultDto>(query);
+                return values.ToList();
+            }
+        }
+
+        public async Task<List<TaskResultDto>> GetTasksByFilterAsync(TaskFiltersDto taskFiltersDto)
+        {
+            var json = JsonSerializer.Serialize(taskFiltersDto);
+                
+            string query = @"exec Get_ListAllTask_byfilters @Filters = @json";
+
+            var parameters = new DynamicParameters();
+            parameters.Add("@json", json);
+            //parameters.Add("@status", status);
+
+            using (var connection = _context.CreateConnection())
+            {
+                var values = await connection.QueryAsync<TaskResultDto>(query, parameters);
                 return values.ToList();
             }
         }

@@ -1,4 +1,4 @@
-﻿using MichelPage_TechnicalTest_Back.Dtos.TaskDtos;
+using MichelPage_TechnicalTest_Back.Dtos.TaskDtos;
 
 namespace MichelPage_TechnicalTest_Back.Repositories.TaskRepository
 {
@@ -6,6 +6,8 @@ namespace MichelPage_TechnicalTest_Back.Repositories.TaskRepository
     {
 
         Task<List<TaskResultDto>> GetAllTasksAsync();
+
+        Task<List<TaskResultDto>> GetTasksByFilterAsync(TaskFiltersDto taskFiltersDto);
 
         Task CreateTaskAsync(TaskCreateDto taskDto);
 

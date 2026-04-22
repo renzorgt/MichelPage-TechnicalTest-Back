@@ -33,6 +33,21 @@ namespace MichelPage_TechnicalTest_Back.Controllers
         }
 
         [HttpPost]
+        public async Task<IActionResult> GetTasksByFilter(TaskFiltersDto taskFiltersDto)
+        {
+            try
+            {
+                var values = await _taskRepository.GetTasksByFilterAsync(taskFiltersDto);
+                return Ok(values);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al obtener el listado de tareas filtradas");
+                return StatusCode(500, new { message = "No fue posible obtener las tareas filtradas." });
+            }
+        }
+
+        [HttpPost]
         public async Task<IActionResult> CreateTask(TaskCreateDto taskDto)
         {
             if (!ModelState.IsValid)
