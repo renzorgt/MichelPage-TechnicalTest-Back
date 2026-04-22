@@ -1,6 +1,8 @@
 using MichelPage_TechnicalTest_Back.DapperContext;
 using MichelPage_TechnicalTest_Back.Repositories.TaskRepository;
+using MichelPage_TechnicalTest_Back.Services.TaskService;
 using MichelPage_TechnicalTest_Back.Repositories.UserRepository;
+using MichelPage_TechnicalTest_Back.Services.UserService;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,6 +13,9 @@ builder.Services.AddControllers();
 builder.Services.AddTransient<Context>();
 builder.Services.AddScoped <IUserRepository, UserRepository>();
 builder.Services.AddScoped<ITaskRepository, TaskRepository>();
+builder.Services.AddScoped<ITaskService, TaskService>();
+builder.Services.AddScoped<IUserService, UserService>();
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddCors(options =>
 {

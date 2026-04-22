@@ -1,5 +1,6 @@
 using MichelPage_TechnicalTest_Back.Dtos.TaskDtos;
 using MichelPage_TechnicalTest_Back.Repositories.TaskRepository;
+using MichelPage_TechnicalTest_Back.Services.TaskService;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MichelPage_TechnicalTest_Back.Controllers
@@ -8,12 +9,13 @@ namespace MichelPage_TechnicalTest_Back.Controllers
     [ApiController]
     public class TasksController : ControllerBase
     {
-        private readonly ITaskRepository _taskRepository;
+        private readonly ITaskService _taskService;
+        //private readonly ITaskRepository _taskRepository;
         private readonly ILogger<TasksController> _logger;
 
-        public TasksController(ITaskRepository taskRepository, ILogger<TasksController> logger)
+        public TasksController(ITaskService taskService, ILogger<TasksController> logger)
         {
-            _taskRepository = taskRepository;
+            _taskService = taskService;
             _logger = logger;
         }
 
@@ -22,7 +24,7 @@ namespace MichelPage_TechnicalTest_Back.Controllers
         {
             try
             {
-                var values = await _taskRepository.GetAllTasksAsync();
+                var values = await _taskService.GetAllTasksAsync();
                 return Ok(values);
             }
             catch (Exception ex)
@@ -37,7 +39,7 @@ namespace MichelPage_TechnicalTest_Back.Controllers
         {
             try
             {
-                var values = await _taskRepository.GetTasksByFilterAsync(taskFiltersDto);
+                var values = await _taskService.GetTasksByFilterAsync(taskFiltersDto);
                 return Ok(values);
             }
             catch (Exception ex)
@@ -55,7 +57,7 @@ namespace MichelPage_TechnicalTest_Back.Controllers
 
             try
             {
-                await _taskRepository.CreateTaskAsync(taskDto);
+                await _taskService.CreateTaskAsync(taskDto);
                 return Ok(new { message = "Tarea creada exitosamente." });
             }
             catch (Exception ex)
@@ -76,7 +78,7 @@ namespace MichelPage_TechnicalTest_Back.Controllers
 
             try
             {
-                await _taskRepository.UpdateTaskAsync(taskDto);
+                await _taskService.UpdateTaskAsync(taskDto);
                 return Ok(new { message = "Tarea actualizada exitosamente." });
             }
             catch (Exception ex)
@@ -98,7 +100,7 @@ namespace MichelPage_TechnicalTest_Back.Controllers
 
             try
             {
-                await _taskRepository.UpdateStatusAsync(taskDto);
+                await _taskService.UpdateStatusAsync(taskDto);
                 return Ok(new { message = "Estado actualizado exitosamente." });
             }
             catch (Exception ex)
@@ -116,7 +118,7 @@ namespace MichelPage_TechnicalTest_Back.Controllers
 
             try
             {
-                await _taskRepository.DeleteTaskAsync(id, usuarioMod);
+                await _taskService.DeleteTaskAsync(id, usuarioMod);
                 return Ok(new { message = "Tarea eliminada exitosamente." });
             }
             catch (Exception ex)
